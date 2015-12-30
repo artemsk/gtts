@@ -2,6 +2,8 @@
 
 namespace Artemsk\GTTS;
 
+use Symfony\Component\Stopwatch\Stopwatch;
+
 class Handler {
 
     protected $text;    
@@ -16,6 +18,7 @@ class Handler {
     protected $tk;
     
     protected $flag_split_done = false;
+    protected $spent_time;
 
     protected $url = 'http://translate.google.com/translate_tts';
     protected $sleep = 5;
@@ -68,6 +71,11 @@ class Handler {
     public function getTk($text)
     {
         return $this->_generateTk($text);
+    }
+
+    public function getSpentTime()
+    {
+        return $this->spent_time;
     }
 
     public function getUrls()
@@ -206,7 +214,9 @@ class Handler {
             $this->getUrls();
         }
 
-        $files = $combined_data = [];
+        $combined_data = [];
+        $stopwatch = new Stopwatch();
+        $stopwatch->start('download');
         foreach($this->urls as $url) {
 
             set_time_limit(90);
@@ -215,8 +225,6 @@ class Handler {
                 continue;
             }
 
-            $files[] = $filename;
-
             if(!empty($data)) {
                 sleep($this->sleep);
             } else {
@@ -224,8 +232,10 @@ class Handler {
             }
 
             $combined_data[] = $data;
+            $stopwatch->lap('download');
         }
 
+        $this->spent_time = $stopwatch->stop('download');
         return $combined_data;
     }
 
