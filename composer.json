@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Artemsk\GTTS\\": "src/"
+            "Artemsk\\GTTS\\": "src/"
         }
     },
     "minimum-stability": "dev"
