@@ -327,7 +327,7 @@ class Handler {
 
     protected function _charAtCode($utf8Character)
     {
-        $utf16Char = mb_convert_encoding($utf8Character, 'UTF-16');
+        $utf16Char = mb_convert_encoding($utf8Character, 'UTF-16', $this->enc);
         $ord = hexdec(bin2hex($utf16Char));
         //list(, $ord) = unpack('N', mb_convert_encoding($utf8Character, 'UCS-4BE', 'UTF-8'));
         return $ord;
