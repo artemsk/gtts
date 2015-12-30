@@ -91,7 +91,7 @@ class Handler {
         if(empty($this->lang) || empty($this->enc) ||
             empty($this->processed_text)) {
 
-            throw new \Exception('Not enough data.');
+            throw new TalkingHeadException('Not enough data.');
         }
     }
 
@@ -102,7 +102,7 @@ class Handler {
         }
 
         if(empty($this->combined_filename)) {
-            throw new \Exception('Not enough data.');
+            throw new TalkingHeadException('File does not exist.');
         }
     }
 
@@ -152,7 +152,7 @@ class Handler {
     protected function splitAction()
     {
         if(empty($this->text)) {
-            throw new \Exception('Text string is empty.');
+            throw new TalkingHeadException('Text string is empty.');
         }
         
         $parts = preg_split("/[,;:]/", $this->text); // .
