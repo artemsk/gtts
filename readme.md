@@ -1,4 +1,8 @@
-Ex.: TalkingHead::make('Hello World!', 'en')->speak(true);
+Example: 
+
+```
+TalkingHead::make('Hello World!', 'en')->speak(true);
+```
 
 or
 
@@ -19,7 +23,7 @@ Configuration:
 $talking->enc($encoding); // encoding, default: UTF-8
 $talking->language($language); // language, default: en
 $talking->path($path); // storage path
-$talking->sleep($seconds); // pause in seconds before requesting next url from google translate, default: 5 sec.
+$talking->sleep($seconds); // pause in seconds before requesting next url
 $talking->split($length); // split text by chunks, default: 100
 $talking->text($text); // text
 ```
