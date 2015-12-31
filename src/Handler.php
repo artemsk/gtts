@@ -6,17 +6,17 @@ use Symfony\Component\Stopwatch\Stopwatch;
 
 class Handler {
 
-    protected $text;    
+    protected $text;
     protected $processed_text;
     protected $urls = [];
     protected $combined_filename;
-    
+
     protected $max = 100;
     protected $lang = 'en';
     protected $enc = 'UTF-8';
     protected $raw = 'client=t';
     protected $tk;
-    
+
     protected $flag_split_done = false;
     protected $spent_time;
 
@@ -31,6 +31,7 @@ class Handler {
 
     public function enc($enc)
     {
+        $this->removeValues();
         $this->enc = $enc;
         return $this;
     }
@@ -116,6 +117,7 @@ class Handler {
 
     public function language($lang)
     {
+        $this->removeValues();
         $this->lang = $lang;
         return $this;
     }
@@ -139,8 +141,17 @@ class Handler {
 
     public function raw($raw)
     {
+        $this->removeValues();
         $this->raw = $raw;
         return $this;
+    }
+
+    protected function removeValues()
+    {
+        $this->urls = [];
+        $this->combined_filename = null;
+        $this->flag_split_done = false;
+        $this->spent_time = null;
     }
 
     public function sleep($sleep)
@@ -162,7 +173,7 @@ class Handler {
         if(empty($this->text)) {
             throw new TalkingHeadException('Text string is empty.');
         }
-        
+
         $parts = preg_split("/[,;:]/", $this->text); // .
         $processedParts = [];
 
@@ -176,7 +187,7 @@ class Handler {
                 if(strlen($leftovers) > 0) {
                     $parts[$key + 1] = $leftovers . (isset($parts[$key + 1]) ? $parts[$key + 1] : null);
                 }
-                
+
             } else {
                 $cut = $part;
             }
@@ -192,6 +203,7 @@ class Handler {
 
     public function text($text)
     {
+        $this->removeValues();
         $this->text = $text;
         return $this;
     }
@@ -294,7 +306,7 @@ class Handler {
         $a = $b ? $b : 0;
 
         $zerofill = function($int, $shft) {
-            return ($int >> $shft) & (PHP_INT_MAX >> ($shft - 1)); 
+            return ($int >> $shft) & (PHP_INT_MAX >> ($shft - 1));
         };
 
         $t  = "a";
