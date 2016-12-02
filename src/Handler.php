@@ -75,6 +75,11 @@ class Handler {
         return $this->_generateTk($text);
     }
 
+    public function getTkk()
+    {
+        return $this->tkk;
+    }
+
     public function getSpentTime()
     {
         return $this->spent_time;
@@ -275,7 +280,7 @@ class Handler {
      *  The logic of it can be changed by Google anytime.
      */
 
-    public function _generateTk($text)
+    protected function _generateTk($text)
     {
         $a = htmlentities($text);
         $a = preg_split('//u', $a, -1, PREG_SPLIT_NO_EMPTY);
@@ -345,7 +350,7 @@ class Handler {
         return $ord;
     }
 
-    public function _getTokenKey()
+    protected function _getTokenKey()
     {
         if(!empty($this->tkk)) {
             return $this->tkk;

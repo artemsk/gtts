@@ -1,3 +1,5 @@
+- 32-bit systems are not supported due to integer size limitations.
+
 Example: 
 
 ```
