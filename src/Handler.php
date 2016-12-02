@@ -16,6 +16,7 @@ class Handler {
     protected $enc = 'UTF-8';
     protected $raw = 'client=t';
     protected $tk;
+    protected $tkk;
 
     protected $flag_split_done = false;
     protected $spent_time;
@@ -274,9 +275,8 @@ class Handler {
      *  The logic of it can be changed by Google anytime.
      */
 
-    protected function _generateTk($text)
+    public function _generateTk($text)
     {
-        $b = (int) (time() / 60 / 60);
         $a = htmlentities($text);
         $a = preg_split('//u', $a, -1, PREG_SPLIT_NO_EMPTY);
 
@@ -303,38 +303,38 @@ class Handler {
             }
         }
 
-        $a = $b ? $b : 0;
-
         $zerofill = function($int, $shft) {
-            return ($int >> $shft) & (PHP_INT_MAX >> ($shft - 1));
+            return $int >= 0 ? ($int >> $shft) : (($int + 0x100000000) >> $shft);
+            //return ($int >> $shft) & (PHP_INT_MAX >> ($shft - 1));
         };
 
-        $t  = "a";
-        $dd = ".";
-        $Vb = "+-a^+6";
-        $Tb = "+";
-        $Ub = "+-3^+b+-f";
-
-        $RL = function($a, $b) use($zerofill, $Tb, $t) {
+        $RL = function($a, $b) use($zerofill) {
             for ($c = 0; $c < strlen($b) - 2; $c += 3) {
                 $d = $b{$c + 2};
-                $d = $d >= $t ? $this->_charAtCode($d[0]) - 87 : $d;
-                $d = $b{$c + 1} == $Tb ? $zerofill($a, $d) : $a << $d;
-                $a = $b{$c} == $Tb ? $a + $d & 4294967295 : $a ^ $d;
+                $d = $d >= "a" ? $this->_charAtCode($d[0]) - 87 : $d;
+                $d = $b{$c + 1} == "+" ? $zerofill($a, $d) : $a << $d;
+                $a = $b{$c} == "+" ? $a + $d & 4294967295 : $a ^ $d;
             }
             return $a;
         };
 
+        list($first_seed, $second_seed) = array_pad(explode('.', $this->_getTokenKey()), 2, null);
+
+        $Vb = "+-a^+6";
+        $Ub = "+-3^+b+-f";
+
+        $a = (int)$first_seed;
         for ($e = 0; $e < count($d); $e++) {
             $a += $d[$e];
             $a = $RL($a, $Vb);
         }
-
+        
         $a = $RL($a, $Ub);
+        $a ^= (int)$second_seed;
         0 > $a && ($a = ($a & 2147483647) + 2147483648);
         $a = fmod($a, 1E6);
 
-        return (string)$a . $dd . ($a ^ $b);
+        return (string)$a . '.' . (string)($a ^ (int)$first_seed);
     }
 
     protected function _charAtCode($utf8Character)
@@ -345,4 +345,37 @@ class Handler {
         return $ord;
     }
 
+    public function _getTokenKey()
+    {
+        if(!empty($this->tkk)) {
+            return $this->tkk;
+        }
+        
+        $hours = (int)(time() / 3600);
+
+        $client = new \GuzzleHttp\Client;
+        $res = $client->get('https://translate.google.com/', ['verify' => false]);
+
+        if($res->getStatusCode() != '200') {
+            throw new TalkingHeadException('Access denied.');
+        }
+
+        $matches = $tkk_expr = null;
+        preg_match_all("/.*?(TKK=.*?;)W.*?/", (string)$res->getBody(), $matches);
+
+        if(isset($matches[1][0])) {
+
+            $tkk_expr = $matches[1][0];
+            $a = $b = null;
+            preg_match("/a\\\\x3d(-?\d+);/", $tkk_expr, $a);
+            preg_match("/b\\\\x3d(-?\d+);/", $tkk_expr, $b);
+
+            if(isset($a[1]) && isset($b[1])) {
+                $this->tkk = (string)$hours . '.' . (string)($a[1] + $b[1]);
+                return $this->tkk;
+            }
+        }
+        
+        throw new TalkingHeadException('TKK not found.');
+    }
 }
