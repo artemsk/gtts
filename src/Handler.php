@@ -77,7 +77,7 @@ class Handler {
 
     public function getTkk()
     {
-        return $this->tkk;
+        return $this->_getTokenKey();
     }
 
     public function getSpentTime()

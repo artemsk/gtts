@@ -37,6 +37,7 @@ $talking->raw($raw); // additional url parameter
 $talking->writeToMp3(); // just create mp3
 $talking->getProcessedText();
 $talking->getTk($text); // get 'tk' parameter for text
+$talking->getTkk(); // get token
 $talking->getUrls();  // list of urls for tts
 $talking->getSpentTime(); // Symfony StopwatchEvent to measure spent time for downloading
 ```
